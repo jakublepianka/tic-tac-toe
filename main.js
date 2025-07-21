@@ -1,21 +1,26 @@
-(function(){
+// (function(){
+    
+    function SingularField(index){
+        const fieldId = index;
+        let placedSymbol = undefined; 
+
+        return {
+            fieldId,
+            placedSymbol
+        }
+    };
 
     const Gameboard = (function() {
         let gameboard = [...Array(9)];
-        function clearGameboard(){
+        function initializeGameboard(){
             for(let i = 0; i < gameboard.length; i++){
-                gameboard[i] = undefined;
+                gameboard[i] = SingularField(i);
             }
         };
-        // function displayGameboard(){
-
-         
-        // };
 
         return {
             gameboard,
-            clearGameboard,
-            // displayGameboard
+            initializeGameboard,
         }
     })();
     
@@ -42,19 +47,23 @@
         //Take/store(?) two players names and symbols
         const player1 = Player('josh', 'x');
         const player2 = Player('fredor', 'o');
+        Gameboard.initializeGameboard();
 
         function playGame(){
 
-        while (true){            
-            if (Gameboard.gameboard.every((element) => element == undefined)){
+            if (Gameboard.gameboard.every((element) => element.placedSymbol == undefined)){
                 makeMove(chooseFirstPlayer(player1, player2));
                 console.log(Gameboard.gameboard);
+                console.log("lol");
+                // playGame();
+                // return;
+            } else {
+                makeMove(changePlayer(player1, player2));
+                console.log(Gameboard.gameboard);                
             }
 
-            makeMove(changePlayer(player1, player2));
-            console.log(Gameboard.gameboard);
-            
-            }
+            // console.log(Gameboard.gameboard);
+            // playGame();
         }
 
         function chooseFirstPlayer(playerOne, playerTwo){
@@ -84,22 +93,24 @@
             }               
         }
 
-        function makeMove(player){            
+        async function makeMove(currentPlayer){            
 
-            player.isMoving = true;
-            let index = prompt(`${player.playerName}'s move: `, );
+            currentPlayer.isMoving = true;
+            let index = await displayController.placeSymbol(currentPlayer);
             
-            if(Gameboard.gameboard[index] !== undefined){
-                return console.log('this field is already taken');
+            console.log(`${index} is the number`);
+            // if (index === undefined) return;
+            if(Gameboard.gameboard[index].placedSymbol !== undefined){
+                return alert('this field is already taken');
 
             } else if(!/^[0-8]$/.test(index)){
-                return console.log('Invalid value');
-
+                return alert('Invalid value');
             }
 
-            Gameboard.gameboard[index] = player.playerSymbol;
-            player.movesMade.push(index);
-            checkForWin(player);
+            Gameboard.gameboard[index].placedSymbol = currentPlayer.playerSymbol;
+            currentPlayer.movesMade.push(index);
+            checkForWin(currentPlayer);
+            
             // to do:
             // Update the view of the gameboard
         }
@@ -117,7 +128,9 @@
             ];
 
             for(let index in winConditions){
-                if (winConditions[index].every((element) => currentPlayer.movesMade.includes(`${element}`))){
+
+
+                if (winConditions[index].every((element) => currentPlayer.movesMade.includes(element))){
                     console.log(`${currentPlayer.playerName} is the winner!`);
 
                     if (currentPlayer.playerSymbol == player1.playerSymbol) {
@@ -131,18 +144,22 @@
                         player1.lossCount++;
                         clearStats(player1, player2);
                     }
-                    Gameboard.clearGameboard();
+                    Gameboard.initializeGameboard();
+                    return console.log("finished");
+                    // playGame();
 
-                } else if (!(Gameboard.gameboard.includes(undefined))){
+                } else if (Gameboard.gameboard.every((field) => field.placedSymbol !== undefined)){
 
                     console.log(`It's a tie!`);
                     player1.tieCount++
                     player2.tieCount++
                     clearStats(player1, player2);
-                    Gameboard.clearGameboard();
-
+                    Gameboard.initializeGameboard();
+                    return console.log("finished");
+                    // playGame();
                 }
             }
+            playGame();
         }
             
         function clearStats(player1, player2){
@@ -159,7 +176,75 @@
 
     })();
 
+    const displayController = (function(){
+        // preset values which allow for instant gameplay
+        // preset grid
+        // restart button
+        // no confirm and symbol choice button, it should be enough to fill out the form fields
+        // // // 
+        // displayGameboard (refresh view)
+        // connect each field to the array by its index
+        // const header = document.querySelector('.header');
+        
+        const gameContainer = document.querySelector('.game');
+        
+        
+        function placeSymbol(currentPlayer){
+            const fields = document.querySelectorAll('.field');            
+            return new Promise((resolve) => {    
+            fields.forEach((element, index) => {
+                element.dataset.fieldid = Gameboard.gameboard[index].fieldId;
+                if(Gameboard.gameboard[index].placedSymbol === undefined) {
+                    const handleClick = () => {
+                        element.textContent = currentPlayer.playerSymbol;
+                        element.removeEventListener('click', handleClick);
+
+                        resolve(index);
+                    } 
+                    element.addEventListener('click', handleClick);
+                }
+                });
+                
+            });  
+        };
+        
+        // function restartButton(){
+        //     const restartBtn = document.createElement('button');
+        //     restartBtn.classList.add('restart-game');
+        //     restartBtn.innerHTML = 'Restart';
+        //     restartBtn.addEventListener("Click", () => {
+        //         clearGrid();
+        //     });
+        //     header.appendChild(restartBtn);
+        // };
+
+        // function clearGrid(){
+        //     field.forEach(element => {
+        //         innerHTML = '';
+        //     });
+        // };
+        
+        
+
+        // function displayGameboard(){
+        // }
+        
+
+        return {
+            // connectGrid,
+            placeSymbol,
+            // restartButton,
+            // displayGameboard,
+        }
+    })();
+
+
+    // displayController.restartButton();
+    // console.log(displayController.placeSymbol(Gameboard.gameboard));
+    // console.log(displayController.placeSymbol(3));
+    
+    // displayController.displayGameboard()
     GameController.playGame();
 
 
-})();
+// })();
