@@ -1,4 +1,4 @@
-// (function(){
+const TicTacToe = (function(){
     
     function SingularField(index){
         const fieldId = index;
@@ -10,22 +10,8 @@
         }
     };
 
-    const Gameboard = (function() {
-        let gameboard = [...Array(9)];
-        function initializeGameboard(){
-            for(let i = 0; i < gameboard.length; i++){
-                gameboard[i] = SingularField(i);
-            }
-        };
-
-        return {
-            gameboard,
-            initializeGameboard,
-        }
-    })();
-    
-    function Player(name, symbol){
-        const playerName = name;
+    function Player(/*name = '',*/ symbol){
+        // const playerName = name;
         const playerSymbol = symbol;
         let movesMade = [];
         let winCount = 0;
@@ -33,7 +19,7 @@
         let tieCount = 0;
         let isMoving = false;
         return { 
-            playerName,
+            // playerName,
             playerSymbol,
             movesMade,
             winCount,
@@ -43,32 +29,178 @@
         };
     }
 
+    const Gameboard = (function() {
+        let gameboard = [...Array(9)];
+        let isActive = false;
+        function initializeGameboard(){
+            for(let i = 0; i < gameboard.length; i++){
+                gameboard[i] = SingularField(i);
+            }
+        };
+
+        return {
+            gameboard,
+            isActive,
+            initializeGameboard,
+        }
+    })();
+    
+    const DisplayController = (function(){
+        
+        const buttonContainer = document.querySelector('.button-container');
+        function getFields() {
+            return document.querySelectorAll('.field');
+        }
+
+        function initButtons(){
+            restartButton();
+            startButton();
+            resetStatsButton();
+        }
+
+        const startButton = function (){
+            const startBtn = document.createElement('button');
+            startBtn.classList.add('start-game');
+            startBtn.textContent = 'Start Game';
+        
+            startBtn.addEventListener('click', () =>{
+                if(!Gameboard.isActive){
+                    GameController.playGame();                            
+                    startBtn.remove();
+                } else {
+                    displayGameInfo(`Game is already in progress`);
+                }
+
+
+            })
+            buttonContainer.appendChild(startBtn);
+            
+        }
+
+        function placeSymbol(currentPlayer){
+            return new Promise((resolve) => {    
+                const fields = getFields();
+                fields.forEach((element, index) => {
+                const newElement = element.cloneNode(true);
+                element.parentNode.replaceChild(newElement, element);
+                fields[index] = newElement;
+
+                element.dataset.fieldid = Gameboard.gameboard[index].fieldId;
+                
+                    const handleClick = () => {
+                        if(Gameboard.gameboard[index].placedSymbol === undefined && Gameboard.isActive === true) {
+                        newElement.textContent = currentPlayer.playerSymbol;
+                        newElement.removeEventListener('click', handleClick);
+
+                        resolve(index);
+                        }
+                    } 
+                    newElement.addEventListener('click', handleClick);
+                
+                });
+                
+            });  
+        };
+        
+        const restartButton = function (){
+            const restartBtn = document.createElement('button');
+            restartBtn.classList.add('restart-game');
+            restartBtn.textContent = 'Restart';
+            restartBtn.addEventListener("click", () => {
+                clearGrid();    
+                GameController.playGame();
+            });
+            buttonContainer.appendChild(restartBtn);
+
+        };
+
+        function clearGrid(){
+            const fields = getFields();
+            GameController.clearMovesMade();
+            Gameboard.initializeGameboard();
+            fields.forEach(element => {
+                element.textContent = '';
+            });   
+        };
+
+        const resetStatsButton = function (){
+            const resetBtn = document.createElement('button');
+            resetBtn.classList.add('reset-stats');
+            resetBtn.textContent = 'Reset Player Stats';
+            
+            resetBtn.addEventListener('click', () => {
+                GameController.clearPlayerStats();
+                for(let player of GameController.getPlayers()){
+                    displayPlayerStats(player);
+                }
+            });
+
+            buttonContainer.appendChild(resetBtn);
+        };
+
+        
+
+        function displayGameInfo(message){
+            const infoBar = document.querySelector('.game-info-container');
+            infoBar.textContent = '';
+            infoBar.textContent = message;
+        };
+        
+        function displayPlayerStats(player){
+            const player1InfoContainer = document.querySelector('.player1-info');
+            const player2InfoContainer = document.querySelector('.player2-info');
+            if (player.playerSymbol === 'X'){
+                    player1InfoContainer.innerText = '';
+                    player1InfoContainer.innerText = `${player.playerSymbol}
+                    Wins ${player.winCount}
+                    Losses ${player.lossCount}
+                    Ties ${player.tieCount}`;
+            } else {
+                    player2InfoContainer.innerText = '';
+                    player2InfoContainer.innerText = `${player.playerSymbol}
+                    Wins ${player.winCount}
+                    Losses ${player.lossCount}
+                    Ties ${player.tieCount}`;
+            }
+        };
+
+        return {
+            initButtons,
+            placeSymbol,
+            displayGameInfo,
+            displayPlayerStats
+        }
+    })();
+
     const GameController = (function(){
-        //Take/store(?) two players names and symbols
-        const player1 = Player('josh', 'x');
-        const player2 = Player('fredor', 'o');
+        const player1 = Player('X');
+        const player2 = Player('O');
         Gameboard.initializeGameboard();
+        DisplayController.displayPlayerStats(player1);
+        DisplayController.displayPlayerStats(player2);
 
         function playGame(){
 
             if (Gameboard.gameboard.every((element) => element.placedSymbol == undefined)){
+                Gameboard.isActive = true;
                 makeMove(chooseFirstPlayer(player1, player2));
-                console.log(Gameboard.gameboard);
-                console.log("lol");
-                // playGame();
-                // return;
             } else {
                 makeMove(changePlayer(player1, player2));
-                console.log(Gameboard.gameboard);                
             }
 
-            // console.log(Gameboard.gameboard);
-            // playGame();
         }
 
         function chooseFirstPlayer(playerOne, playerTwo){
             if (playerOne.winCount === playerTwo.winCount){
-                return Math.floor(Math.random()*2) ? playerOne : playerTwo;
+                if(Math.floor(Math.random()*2)){
+                    playerTwo.isMoving = false;
+                    playerOne.isMoving = true;
+                    return playerOne;
+                } else {
+                    playerOne.isMoving = false;
+                    playerTwo.isMoving = true;
+                    return playerTwo; 
+                }    
             } else if (playerOne.winCount > playerTwo.winCount){
                 playerOne.isMoving = false;
                 playerTwo.isMoving = true;
@@ -95,24 +227,22 @@
 
         async function makeMove(currentPlayer){            
 
-            currentPlayer.isMoving = true;
-            let index = await displayController.placeSymbol(currentPlayer);
-            
-            console.log(`${index} is the number`);
-            // if (index === undefined) return;
+            DisplayController.displayGameInfo(`${currentPlayer.playerSymbol} Turn`);
+            let index = await DisplayController.placeSymbol(currentPlayer);
+
             if(Gameboard.gameboard[index].placedSymbol !== undefined){
-                return alert('this field is already taken');
+                alert('this field is already taken');
+                return;
 
             } else if(!/^[0-8]$/.test(index)){
-                return alert('Invalid value');
+                alert('Invalid value');
+                return 
             }
 
             Gameboard.gameboard[index].placedSymbol = currentPlayer.playerSymbol;
             currentPlayer.movesMade.push(index);
             checkForWin(currentPlayer);
             
-            // to do:
-            // Update the view of the gameboard
         }
 
         function checkForWin(currentPlayer){
@@ -129,122 +259,79 @@
 
             for(let index in winConditions){
 
-
                 if (winConditions[index].every((element) => currentPlayer.movesMade.includes(element))){
-                    console.log(`${currentPlayer.playerName} is the winner!`);
+                    DisplayController.displayGameInfo(`${currentPlayer.playerSymbol} Wins!`);
 
                     if (currentPlayer.playerSymbol == player1.playerSymbol) {
 
                         player1.winCount++;
                         player2.lossCount++;
-                        clearStats(player1, player2);
+                        DisplayController.displayPlayerStats(player1);
+                        DisplayController.displayPlayerStats(player2);
+                        clearMovesMade();
                     } else {
 
                         player2.winCount++;
                         player1.lossCount++;
-                        clearStats(player1, player2);
+                        DisplayController.displayPlayerStats(player1);
+                        DisplayController.displayPlayerStats(player2);
+                        clearMovesMade();
                     }
+                    Gameboard.isActive = false;
                     Gameboard.initializeGameboard();
-                    return console.log("finished");
-                    // playGame();
-
-                } else if (Gameboard.gameboard.every((field) => field.placedSymbol !== undefined)){
-
-                    console.log(`It's a tie!`);
-                    player1.tieCount++
-                    player2.tieCount++
-                    clearStats(player1, player2);
-                    Gameboard.initializeGameboard();
-                    return console.log("finished");
-                    // playGame();
+                    return;
                 }
             }
+            if (Gameboard.gameboard.every((field) => field.placedSymbol !== undefined)){
+
+                DisplayController.displayGameInfo(`It's a Tie!`);
+                player1.tieCount++
+                player2.tieCount++
+                clearMovesMade();
+                Gameboard.isActive = false;                    
+                Gameboard.initializeGameboard();
+                DisplayController.displayPlayerStats(player1);
+                DisplayController.displayPlayerStats(player2);
+
+                return;
+            }
+            
             playGame();
         }
+
+        function getPlayers(){
+            let arr = [];
+            arr.push(player1);
+            arr.push(player2);
+            return arr;
+        };
             
-        function clearStats(player1, player2){
+        function clearMovesMade(){
             player1.isMoving = false;
             player2.isMoving = false;
             player1.movesMade = [];
             player2.movesMade = [];
         }
+
+        function clearPlayerStats(){
+            player1.winCount = 0;
+            player1.lossCount = 0;
+            player1.tieCount = 0;
+            player2.winCount = 0;
+            player2.lossCount = 0;
+            player2.tieCount = 0;
+        }
         
         
         return {
-            playGame
+            playGame,
+            clearMovesMade,
+            clearPlayerStats,
+            getPlayers          
         }
 
     })();
 
-    const displayController = (function(){
-        // preset values which allow for instant gameplay
-        // preset grid
-        // restart button
-        // no confirm and symbol choice button, it should be enough to fill out the form fields
-        // // // 
-        // displayGameboard (refresh view)
-        // connect each field to the array by its index
-        // const header = document.querySelector('.header');
-        
-        const gameContainer = document.querySelector('.game');
-        
-        
-        function placeSymbol(currentPlayer){
-            const fields = document.querySelectorAll('.field');            
-            return new Promise((resolve) => {    
-            fields.forEach((element, index) => {
-                element.dataset.fieldid = Gameboard.gameboard[index].fieldId;
-                if(Gameboard.gameboard[index].placedSymbol === undefined) {
-                    const handleClick = () => {
-                        element.textContent = currentPlayer.playerSymbol;
-                        element.removeEventListener('click', handleClick);
-
-                        resolve(index);
-                    } 
-                    element.addEventListener('click', handleClick);
-                }
-                });
-                
-            });  
-        };
-        
-        // function restartButton(){
-        //     const restartBtn = document.createElement('button');
-        //     restartBtn.classList.add('restart-game');
-        //     restartBtn.innerHTML = 'Restart';
-        //     restartBtn.addEventListener("Click", () => {
-        //         clearGrid();
-        //     });
-        //     header.appendChild(restartBtn);
-        // };
-
-        // function clearGrid(){
-        //     field.forEach(element => {
-        //         innerHTML = '';
-        //     });
-        // };
-        
-        
-
-        // function displayGameboard(){
-        // }
-        
-
-        return {
-            // connectGrid,
-            placeSymbol,
-            // restartButton,
-            // displayGameboard,
-        }
-    })();
-
-
-    // displayController.restartButton();
-    // console.log(displayController.placeSymbol(Gameboard.gameboard));
-    // console.log(displayController.placeSymbol(3));
+    DisplayController.initButtons();
     
-    // displayController.displayGameboard()
-    GameController.playGame();
-
-
-// })();
+})();
