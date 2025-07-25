@@ -49,6 +49,7 @@ const TicTacToe = (function(){
         
         const buttonContainer = document.querySelector('.button-container');
         const playerNameFields = document.querySelectorAll('.player-name');
+        const startBtn = document.createElement('button');
 
         function getFields() {
             return document.querySelectorAll('.field');
@@ -62,14 +63,13 @@ const TicTacToe = (function(){
         }
 
         const startButton = function (){
-            const startBtn = document.createElement('button');
+            
             startBtn.classList.add('start-game');
             startBtn.textContent = 'Start Game';
         
             startBtn.addEventListener('click', () =>{
                 if(!Gameboard.isActive){
                     playerNameFields.forEach((playerNameField) => {
-                        console.log(playerNameField.value);
                         if (playerNameField.classList.value !== 'player-name-given'){
                             playerNameField.classList.remove('player-name');
                             playerNameField.classList.add('player-name-empty');
@@ -77,7 +77,9 @@ const TicTacToe = (function(){
                         }
                     });
                     GameController.playGame();
+                    startBtn.textContent = 'Used';
                     startBtn.remove();
+
                 } else {
                     displayGameInfo(`Game is already in progress`);
                 }
@@ -174,11 +176,7 @@ const TicTacToe = (function(){
         const namePlayerButton = function() {
             
             playerNameFields.forEach((playerNameField, index) => {
-                playerNameField.addEventListener('click', () =>{
-                    console.log(`click ${index}`);
-                    console.log(playerNameField.textContent == 'Confirm');
-                    console.log(playerNameField.classList.value);
-                    
+                playerNameField.addEventListener('click', () =>{                    
                     if (playerNameField.textContent == 'X Name' ||
                         playerNameField.textContent == 'O Name' ){
 
@@ -219,11 +217,30 @@ const TicTacToe = (function(){
             });
         };
 
+        const restartAfterGameEnd = function(){
+            const fields = getFields();
+            fields.forEach(field => {
+                field.addEventListener('click', () => {
+                    clearGrid();
+                    GameController.playGame();
+
+                });
+            });
+            
+        };
+
+        function isGameFinished(){
+            if(!Gameboard.isActive && startBtn.textContent == 'Used'){
+                restartAfterGameEnd();
+            }
+        };
+
         return {
             initButtons,
             placeSymbol,
             displayGameInfo,
-            displayPlayerStats
+            displayPlayerStats,
+            isGameFinished
         }
     })();
 
@@ -334,6 +351,7 @@ const TicTacToe = (function(){
                     }
                     Gameboard.isActive = false;
                     Gameboard.initializeGameboard();
+                    DisplayController.isGameFinished();
                     return;
                 }
             }
@@ -345,6 +363,7 @@ const TicTacToe = (function(){
                 clearMovesMade();
                 Gameboard.isActive = false;                    
                 Gameboard.initializeGameboard();
+                DisplayController.isGameFinished();
                 DisplayController.displayPlayerStats(player1);
                 DisplayController.displayPlayerStats(player2);
 
@@ -387,7 +406,5 @@ const TicTacToe = (function(){
     })();
 
     DisplayController.initButtons();
-    console.log(GameController.getPlayers()[0].playerSymbol);
-    console.log(GameController.getPlayers()[1].playerSymbol);
 
 })();
