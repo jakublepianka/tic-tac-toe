@@ -1,5 +1,4 @@
-body {
-    
+body {   
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -7,6 +6,7 @@ body {
     height: 100vh;
     width: 100vw;
     font-family: "Funnel Sans", sans-serif;
+    background-color: #F1F0E8;
 }
 
 .main-container {
@@ -17,19 +17,74 @@ body {
     min-width: 450px;
     background-color: #F5F5F5;
     box-shadow: #9ACBD0 0px 0px 100px 0px;
-    
+    overflow-x: hidden;
 }
 
 .header {
     display: grid;
-    grid-template-rows: 5fr 2fr 1fr;
-    /* max-height: 315px; */
+    grid-template-rows: 1.5fr 3fr 1.5fr 1fr;
+    padding: 2rem 0 0 0;
 }
+
+.player-name-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.player-name {
+    display: grid;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.player-name-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.player-name-given {
+    display: grid;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.player-name:hover {
+    background-color: #9ACBD0;
+    cursor: pointer;
+}
+
+input {
+    border: none;
+    width: 100%;
+}
+
+input:active {
+    outline: none;
+    border: none;
+}
+
+.confirm-name-button {
+    border: none;
+    width: 197px;
+    background-color: #D4EBF8;
+    cursor: pointer;
+}
+
+.confirm-name-button:hover {
+    background-color: #9ACBD0;
+}
+
 
 .player-info-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    /* justify-content: space-between; */
+    box-shadow: #9ACBD0 0px 0px 24px -6px inset;
+
 }
 
 .player1-info, .player2-info {
@@ -42,9 +97,8 @@ body {
 .button-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    /* grid-auto-flow: column; */
-    /* gap: 0.5rem; */
-    /* background-color: #F2EFE7; */
+    /* box-shadow: #9ACBD0 0px 0px 24px -6px; */
+    z-index: 1;
 }
 
 .game-info-container {
@@ -56,19 +110,22 @@ body {
     font-weight: 600;
     font-style: normal;
     font-size: 16px;
+    padding-top: 1rem;
 }
 
 .restart-game, .start-game, .reset-stats {
     background-color: #F5F5F5;
     border: none;
     align-self: center;
-    height: 55px;
+    height: 100%;
+    padding: 0;
 }
 
 .restart-game:hover, .start-game:hover, .reset-stats:hover {
     background-color: #9ACBD0;
-    height: 55px;
+    height: 100%;
     cursor: pointer;
+    padding: 0;
 }
 
 .game {
@@ -93,34 +150,9 @@ body {
     font-style: normal;
     font-size: 102px;
     line-height: 102px;
+    color: #2973B2;
     cursor: pointer;
 }
-
-/* .field-x {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #F5F5F5;
-    font-family: "Funnel Sans", sans-serif;
-    font-weight: 300;
-    font-style: normal;
-    font-size: 58px;
-    color: #48A6A7;
-}
-
-.field-o {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #F5F5F5;
-    font-family: "Funnel Sans", sans-serif;
-    font-weight: 300;
-    font-style: normal;
-    font-size: 112px;
-    color: #2973B2;
-} */
-
-
 
 .footer {
     flex-grow: 1;
