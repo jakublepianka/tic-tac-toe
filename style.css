@@ -1,3 +1,12 @@
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+*:not(.game):not(.field):not(img) {
+    animation: fadeIn 0.5s ease-in both;
+}
+
 body {   
     display: flex;
     flex-direction: column;
@@ -6,7 +15,7 @@ body {
     height: 100vh;
     width: 100vw;
     font-family: "Funnel Sans", sans-serif;
-    background-color: #F1F0E8;
+    background-image: url(tic-tac-toe.webp);
 }
 
 .main-container {
@@ -36,11 +45,12 @@ body {
     align-items: center;
     text-align: center;
     padding: 0 1rem;
+    transition: background-color 0.2s ease;
 }
 
 .player-name-form {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));;
+    grid-template-rows: repeat(auto-fit, minmax(10px, 1fr));;
     align-items: center;
     text-align: center;
     padding: 0 1rem;
@@ -51,6 +61,7 @@ body {
     align-items: center;
     text-align: center;
     padding: 0 1rem;
+    background-color: #F5F5F5;
 }
 
 .player-name:hover {
@@ -60,23 +71,28 @@ body {
 
 input {
     border: none;
+    padding: 4px 4px;
     width: 100%;
+    box-sizing: border-box;
 }
 
-input:active {
+input:focus {
     outline: none;
     border: none;
 }
 
 .confirm-name-button {
     border: none;
-    width: 197px;
+    width: 100%;
     background-color: #D4EBF8;
     cursor: pointer;
+    padding: 4px 0px;
+    transition: background-color 0.2s ease;
 }
 
 .confirm-name-button:hover {
     background-color: #9ACBD0;
+    transition: background-color 0.2s ease;
 }
 
 
@@ -97,7 +113,6 @@ input:active {
 .button-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    /* box-shadow: #9ACBD0 0px 0px 24px -6px; */
     z-index: 1;
 }
 
@@ -119,6 +134,7 @@ input:active {
     align-self: center;
     height: 100%;
     padding: 0;
+    transition: background-color 0.2s ease;
 }
 
 .restart-game:hover, .start-game:hover, .reset-stats:hover {
@@ -126,6 +142,7 @@ input:active {
     height: 100%;
     cursor: pointer;
     padding: 0;
+    transition: background-color 0.2s ease;
 }
 
 .game {
@@ -145,13 +162,13 @@ input:active {
     justify-content: center;
     align-items: center;
     background-color: #F5F5F5;
-    /* font-optical-sizing: auto; */
-    font-weight: 300;
-    font-style: normal;
-    font-size: 102px;
-    line-height: 102px;
-    color: #2973B2;
     cursor: pointer;
+}
+
+img {
+    width: 80%;
+    height: 80%;
+    filter: invert(13%) sepia(34%) saturate(2454%) hue-rotate(266deg) brightness(104%) contrast(102%);
 }
 
 .footer {

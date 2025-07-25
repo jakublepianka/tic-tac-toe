@@ -100,10 +100,15 @@ const TicTacToe = (function(){
                 
                     const handleClick = () => {
                         if(Gameboard.gameboard[index].placedSymbol === undefined && Gameboard.isActive === true) {
-                        newElement.textContent = currentPlayer.playerSymbol;
-                        newElement.removeEventListener('click', handleClick);
+                            if(currentPlayer.playerSymbol === 'X'){
+                                newElement.innerHTML = '<img src="x-symbol.png"/>';
+                            } else {
+                                newElement.innerHTML = '<img src="o-symbol.png"/>';                                
+                            }
 
-                        resolve(index);
+                            newElement.removeEventListener('click', handleClick);
+    
+                            resolve(index);
                         }
                     } 
                     newElement.addEventListener('click', handleClick);
@@ -152,6 +157,9 @@ const TicTacToe = (function(){
         function displayGameInfo(message){
             const infoBar = document.querySelector('.game-info-container');
             infoBar.textContent = '';
+            infoBar.style.animation = 'none'
+            infoBar.offsetHeight;
+            infoBar.style.animation = 'fadeIn 0.5s ease-in both';
             infoBar.textContent = message;
         };
         
