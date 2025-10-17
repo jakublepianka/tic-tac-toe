@@ -1,3 +1,5 @@
+[Preview](https://jakublepianka.github.io/tic-tac-toe/)
+
 <h1>Tic-Tac-Toe</h1>  
 A modular, browser-based Tic-Tac-Toe game built with vanilla JavaScript, HTML, and CSS.  
 Players can enter their names, track wins/losses/ties, and restart or reset stats via UI buttons.  
